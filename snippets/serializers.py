@@ -5,6 +5,7 @@ from snippets.models import Snippet, LANGUAGE_CHOICES, STYLE_CHOICES
 class SnippetSerializer(serializers.Serializer):
     """
     Creating manually  the  serializer
+    Similar as a Django-form
     """
     pk = serializers.IntegerField(read_only=True)
     title = serializers.CharField(required=False, allow_blank=True, max_length=100)
@@ -30,3 +31,56 @@ class SnippetSerializer(serializers.Serializer):
         instance.style = validated_data.get('style', instance.style)
         instance.save()
         return instance
+
+'''
+#shell script
+#Serialization
+from snippets.models import Snippet
+from snippets.serializers import SnippetSerializer
+from rest_framework.renderers import JSONRenderer
+from rest_framework.parsers import JSONParser
+
+snippet = Snippet(code='foo = "bar"\n')
+snippet.save()
+
+snippet = Snippet(code='print "hello, world"\n')
+snippet.save
+
+serializer = SnippetSerializer(snippet)
+serializer.data
+
+content = JSONRenderer().render(serializer.data)
+content
+
+
+#Deserialization
+from django.utils.six import BytesIO
+
+stream = BytesIO(content)
+data = JSONParser().parse(stream)
+
+serializer = SnippetSerializer(data=data)
+serializer.is_valid()
+# True
+serializer.validated_data
+serializer.save()
+# <Snippet: Snippet object>
+
+serializer = SnippetSerializer(Snippet.objects.all(), many=True)
+serializer.data
+'''
+
+class SnippetSerializer(serializers.ModelSerializer):
+    """
+    The easiest way to serialize object with DRFramework
+    """
+    class Meta:
+        model = Snippet
+        fields = ('id', 'title', 'code', 'linenos', 'language', 'style')
+
+'''
+#shell
+from snippets.serializers import SnippetSerializer
+serializer = SnippetSerializer()
+print(repr(serializer))
+'''
